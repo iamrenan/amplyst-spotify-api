@@ -1,0 +1,15 @@
+@amplyst_spotify_api_HostAddress = https://127.0.0.1:7138
+
+### Start OAuth 2.0 Authorization Flow
+GET {{amplyst_spotify_api_HostAddress}}/auth
+
+###
+
+### Get User Playlists (requires valid access token)
+GET {{amplyst_spotify_api_HostAddress}}/get/playlists?limit=20&offset=0
+Accept: application/json
+
+###
+
+### OpenAPI Documentation (development only)
+GET {{amplyst_spotify_api_HostAddress}}/openapi/v1.json
