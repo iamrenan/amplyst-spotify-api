@@ -1,14 +1,14 @@
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text.Json;
-using amplyst_spotify_api.Models;
+using amplyst_spotify_api.Models.Spotify;
 using amplyst_spotify_api.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 
-namespace amplyst_spotify_api.Controllers.Auth;
+namespace amplyst_spotify_api.Controllers;
 
 [ApiController]
 [Route("api/v1/[controller]")]

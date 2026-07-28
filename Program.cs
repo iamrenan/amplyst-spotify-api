@@ -1,6 +1,9 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
 using amplyst_spotify_api.Services;
+using amplyst_spotify_api.Data;
+using Microsoft.EntityFrameworkCore;
+using amplyst_spotify_api.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,7 +17,10 @@ var dataProtectionKeysPath = Path.Combine(builder.Environment.ContentRootPath, "
 builder.Services.AddDataProtection()
     .SetApplicationName("amplyst-spotify-api")
     .PersistKeysToFileSystem(new DirectoryInfo(dataProtectionKeysPath));
-
+builder.Services.AddDbContext<AmplystDbContext>(options =>
+    options.UseInMemoryDatabase("AmplystDatabase"));
+builder.Services.AddScoped<ILibraryService, LibraryService>();
+builder.Services.AddScoped<ILibraryRepository, LibraryRepository>();
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {

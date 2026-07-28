@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace amplyst_spotify_api.Models;
+namespace amplyst_spotify_api.Models.Spotify;
 
 internal record SimplifiedPlaylist
 {

@@ -3,7 +3,7 @@ namespace amplyst_spotify_api.Services;
 using System.Collections.Concurrent;
 using System.Security.Cryptography;
 using System.Text.Json;
-using amplyst_spotify_api.Models;
+using amplyst_spotify_api.Models.Spotify;
 using Microsoft.AspNetCore.DataProtection;
 
 public interface ITokenService

@@ -1,4 +1,4 @@
-namespace amplyst_spotify_api.Models;
+namespace amplyst_spotify_api.Models.Spotify;
 
 public record AccessTokenResponse(string AccessToken, string TokenType, int ExpiresIn, string RefreshToken, string Scope)
 {

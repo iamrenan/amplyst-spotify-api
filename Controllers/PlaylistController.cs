@@ -1,11 +1,11 @@
 using System.Security.Claims;
 using System.Text.Json;
-using amplyst_spotify_api.Models;
+using amplyst_spotify_api.Models.Spotify;
 using amplyst_spotify_api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace amplyst_spotify_api.Controllers.Playlist;
+namespace amplyst_spotify_api.Controllers;
 
 [ApiController]
 [Authorize]
@@ -34,7 +34,7 @@ public class PlaylistController(IHttpClientFactory httpClientFactory, ITokenServ
         {
             logger.LogInformation("Fetching playlists for user");
             using var client = httpClientFactory.CreateClient();
-            client.DefaultRequestHeaders.Add("Authorization", $"Bearer {tokenResponse.AccessToken}");
+            client.DefaultRequestHeaders.Add("Authorization", $"Bearer {tokenResponse?.AccessToken}");
 
             var queryParams = new Dictionary<string, string>();
             if (HttpContext.Request.Query.TryGetValue("limit", out var limitValue) && int.TryParse(limitValue, out var limit))
