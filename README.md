@@ -37,7 +37,7 @@ dotnet user-secrets set "Spotify:ClientSecret" "<your-client-secret>"
 Set the redirect URI in your Spotify application dashboard to:
 
 ```
-https://127.0.0.1:7138/auth/callback
+https://127.0.0.1:7138/api/v1/auth/callback
 ```
 
 See [Spotify's Documentation on Redirect URIs](https://developer.spotify.com/documentation/general/guides/authorization-guide/#redirect-uris) for more information.
@@ -65,7 +65,7 @@ The server should start at the configured `Properties/launchSettings.json` url (
 
 ## Endpoints
 
-### `GET /auth`
+### `GET /api/v1/auth`
 
 Starts the Spotify OAuth 2.0 authorization flow. Redirects the user to the Spotify login page.
 
@@ -73,11 +73,11 @@ Starts the Spotify OAuth 2.0 authorization flow. Redirects the user to the Spoti
 
 ---
 
-### `GET /auth/callback`
+### `GET /api/v1/auth/callback`
 
 Receives the authorization code from Spotify. Exchanges the code for an access token.
 
-> **Note:** Do not call this endpoint directly. Use `GET /auth` to start the authorization flow. Spotify calls `/auth/callback` automatically after the user authenticates. Direct calls will fail because the required `state` value is only set by `/auth`.
+> **Note:** Do not call this endpoint directly. Use `GET /api/v1/auth` to start the authorization flow. Spotify calls `/api/v1/auth/callback` automatically after the user authenticates. Direct calls will fail because the required `state` value is only set by `/api/v1/auth`.
 
 | Query Parameter | Required | Description |
 |-----------------|----------|-------------|
@@ -90,7 +90,7 @@ Receives the authorization code from Spotify. Exchanges the code for an access t
 ```json
 {
   "expiresAt": "2026-01-01T00:00:00Z",
-  "playlists": "https://127.0.0.1:7138/get/playlists"
+  "playlists": "https://127.0.0.1:7138/api/v1/playlist"
 }
 ```
 
@@ -100,7 +100,7 @@ Receives the authorization code from Spotify. Exchanges the code for an access t
 
 ---
 
-### `GET /get/playlists`
+### `GET /api/v1/playlist`
 
 Returns the playlist list for the authenticated user.
 
