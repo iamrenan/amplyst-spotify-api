@@ -1,4 +1,6 @@
 using amplyst_spotify_api.Models.Core;
+using amplyst_spotify_api.Common;
+using amplyst_spotify_api.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace amplyst_spotify_api.Data;

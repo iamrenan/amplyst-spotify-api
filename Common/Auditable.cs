@@ -1,6 +1,6 @@
-namespace amplyst_spotify_api.Models.Core;
+namespace amplyst_spotify_api.Common;
 
-public abstract class Auditable
+public abstract class Auditable : Entity
 {
     /// <summary>
     /// The date and time when the entity was created.
