@@ -1,17 +1,35 @@
+using amplyst_spotify_api.Data;
+using amplyst_spotify_api.Logging;
+using amplyst_spotify_api.Repositories;
+using amplyst_spotify_api.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
-using amplyst_spotify_api.Services;
-using amplyst_spotify_api.Data;
+using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.EntityFrameworkCore;
-using amplyst_spotify_api.Repositories;
+using System.Text.Json.Serialization;
 
-var builder = WebApplication.CreateBuilder(args);
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddOpenApi();
-builder.Services.AddHttpClient();
-builder.Services.AddControllers();
-builder.Services.AddMemoryCache();
-builder.Services.AddSingleton<ITokenService, TokenService>();
+builder.Logging.AddProvider(new FileLoggerProvider(Path.Combine(builder.Environment.ContentRootPath, "App_Data", "logs", "log.txt")));
+
+builder.Services
+    .AddOpenApi()
+    .AddHttpClient()
+    .AddHttpLogging(static options =>
+    {
+        options.LoggingFields = HttpLoggingFields.RequestMethod | HttpLoggingFields.RequestPath |
+        HttpLoggingFields.ResponseStatusCode | HttpLoggingFields.ResponseTrailers;
+        options.RequestHeaders.Add("X-Correlation-Id");
+        options.MediaTypeOptions.AddText("application/json");
+        options.RequestBodyLogLimit = 4096;
+        options.ResponseBodyLogLimit = 4096;
+        options.CombineLogs = true;
+    })
+    .AddMemoryCache()
+    .AddSingleton<ITokenService, TokenService>();
+
+builder.Services.AddControllers()
+    .AddJsonOptions(static options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
 var dataProtectionKeysPath = Path.Combine(builder.Environment.ContentRootPath, "App_Data", "keys");
 builder.Services.AddDataProtection()
@@ -31,39 +49,19 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.LoginPath = "/api/v1/auth";
     });
 
-var app = builder.Build();
-app.UseHttpsRedirection();
-app.UseAuthentication();
-app.UseAuthorization();
-app.UseMiddleware<LoggerMiddleware>();
-app.MapControllers();
+WebApplication app = builder.Build();
 
 
 if (app.Environment.IsDevelopment())
 {
+    app.UseHttpLogging();
     app.MapOpenApi();
 }
 
+app.UseHttpsRedirection()
+    .UseAuthentication()
+    .UseAuthorization();
+
+app.MapControllers();
+
 app.Run();
-
-/// Middleware that logs the request and response 
-internal class LoggerMiddleware
-{
-    private readonly RequestDelegate _next;
-    private readonly ILogger<LoggerMiddleware> _logger;
-
-    public LoggerMiddleware(RequestDelegate next, ILogger<LoggerMiddleware> logger)
-    {
-        _next = next;
-        _logger = logger;
-    }
-    public async Task InvokeAsync(HttpContext context)
-    {
-        // Log the request
-        _logger.LogInformation("Handling request: {Method} {Path}", context.Request.Method, context.Request.Path);
-        // Call the next middleware in the pipeline
-        await _next(context);
-        // Log the response
-        _logger.LogInformation("Finished handling request {Method} {Path}. Response status code: {StatusCode}", context.Request.Method, context.Request.Path, context.Response.StatusCode);
-    }
-}
