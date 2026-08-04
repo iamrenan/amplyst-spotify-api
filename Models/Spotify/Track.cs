@@ -16,18 +16,18 @@ public record Track : TrackOrEpisode
 }
 
 public record SimplifiedAlbum(
-     string AlbumType,
+     string? AlbumType,
      int TotalTracks,
      ExternalUrls? ExternalUrls,
-     string Href,
-     string Id,
+     string? Href,
+     string? Id,
      Image[] Images,
      string Name,
      string ReleaseDate,
      string ReleaseDatePrecision,
      Restriction? Restrictions,
      string Type,
-     string Uri,
+     string? Uri,
      SimplifiedArtist[]? Artists
 );
 

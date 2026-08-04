@@ -7,23 +7,23 @@ namespace amplyst_spotify_api.Data;
 
 public class AmplystDbContext(DbContextOptions<AmplystDbContext> options) : DbContext(options)
 {
+    public DbSet<ImportJob> ImportJobs { get; set; }
+    public DbSet<Playlist> Playlists { get; set; }
+    public DbSet<Item> Items { get; set; }
+    public DbSet<PlaylistItem> PlaylistItems { get; set; }
+    public DbSet<Artist> Artists { get; set; }
 
-
-    public DbSet<SyncData> Syncs { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<SyncData>()
-            .HasKey(s => s.SyncRunId);
-        modelBuilder.Entity<SyncData>()
-            .Property(s => s.Status)
-            .HasConversion<string>();
+        modelBuilder.Entity<ImportJob>(entity => entity.Property(s => s.Status).HasConversion<string>());
+        modelBuilder.Entity<Item>().HasMany(i => i.Artists).WithMany();
     }
+
     public override int SaveChanges()
     {
         ApplyAuditMetadata();
         return base.SaveChanges();
     }
-
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {

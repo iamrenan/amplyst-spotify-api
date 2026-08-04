@@ -1,23 +1,19 @@
 using System.Security.Claims;
 using System.Security.Cryptography;
-using System.Text.Json;
-using amplyst_spotify_api.Models.Spotify;
 using amplyst_spotify_api.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.AspNetCore.Mvc;
 
 namespace amplyst_spotify_api.Controllers;
 
 [ApiController]
 [Route("api/v1/[controller]")]
-public class AuthController(IHttpClientFactory httpClientFactory, IConfiguration configuration, ITokenService tokenService, IMemoryCache stateCache) : ControllerBase
+public class AuthController(ISpotifyClientService spotifyClientService, IConfiguration configuration, ITokenService tokenService, IMemoryCache stateCache) : ControllerBase
 {
-    private readonly string redirectUri = configuration["RedirectUri"] ?? "https://127.0.0.1:7138";
-    private readonly string clientId = configuration["Spotify:ClientId"] ?? "";
-    private readonly string clientSecret = configuration["Spotify:ClientSecret"] ?? "";
     private static readonly TimeSpan StateLifetime = TimeSpan.FromMinutes(10);
+    private readonly string redirectUri = configuration["RedirectUri"] ?? "https://127.0.0.1:7138";
 
     [HttpGet]
     public async Task<IActionResult> GetAuth()
@@ -34,6 +30,7 @@ public class AuthController(IHttpClientFactory httpClientFactory, IConfiguration
         stateCache.Set(StateCacheKey(userId), state, StateLifetime);
 
         const string scope = "user-read-private user-read-email playlist-read-private";
+        string clientId = configuration["Spotify:ClientId"] ?? "";
 
         var queryParams = new Dictionary<string, string>
         {
@@ -79,7 +76,7 @@ public class AuthController(IHttpClientFactory httpClientFactory, IConfiguration
             return BadRequest("Missing authorization code");
         }
 
-        var token = await RequestAccessToken(code);
+        var token = await spotifyClientService.RequestAccessTokenAsync(redirectUri, code);
         if (token is null)
         {
             return Problem("Failed to obtain access token from Spotify.");
@@ -87,32 +84,9 @@ public class AuthController(IHttpClientFactory httpClientFactory, IConfiguration
 
         await tokenService.StoreTokenAsync(userId, token);
 
-        return Ok(new { token.ExpiresAt, Playlists = $"{redirectUri}/api/v1/playlist" });
+        return Ok(token.ExpiresAt);
     }
 
-    private async Task<AccessTokenResponse?> RequestAccessToken(string code)
-    {
-        const string tokenUrl = "https://accounts.spotify.com/api/token";
-        var form = new Dictionary<string, string>   {
-            { "grant_type", "authorization_code" },
-            { "redirect_uri", $"{redirectUri}/api/v1/auth/callback" },
-            { "code", code }
-        };
-
-        using var client = httpClientFactory.CreateClient();
-        client.DefaultRequestHeaders.Add("Authorization", $"Basic {Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes($"{clientId}:{clientSecret}"))}");
-
-        var response = await client.PostAsync(tokenUrl, new FormUrlEncodedContent(form));
-
-        var tokenResponse = await response.Content.ReadFromJsonAsync<AccessTokenResponse>(new JsonSerializerOptions
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
-        });
-
-        return tokenResponse is null
-            ? null
-            : tokenResponse with { ExpiresAt = DateTime.UtcNow.AddSeconds(tokenResponse.ExpiresIn) };
-    }
 
     private static string GenerateRandomString(int length)
     {

@@ -17,4 +17,5 @@ public class Playlist : Auditable
     public string? SpotifyPlaylistId { get; init; }
     public string? SpotifySnapshotId { get; set; }
     public string? SpotifyPlaylistUri { get; init; }
+    public string? SpotifyOwnerId { get; init; }
 }

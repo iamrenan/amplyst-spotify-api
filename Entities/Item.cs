@@ -11,9 +11,17 @@ public class Item : Auditable
     public required string Name { get; set; }
     public required List<Artist> Artists { get; set; }
     /// <summary>
-    /// Spotify unique identifier for the track, be it a track or episode.
+    /// Spotify unique identifier for the track, be it a track or episode. Null for local files.
     /// </summary>
     public string? SpotifyItemId { get; init; }
+    /// <summary>
+    /// Spotify URI for the track. Always present, including for local files, so it's used as the sync identity key.
+    /// </summary>
+    public required string SpotifyItemUri { get; init; }
+    /// <summary>
+    /// Whether this item is a local file rather than a Spotify catalog track/episode.
+    /// </summary>
+    public bool IsLocal { get; init; }
     public string? AlbumName { get; init; }
     public int DiscNumber { get; init; }
     public int? DurationMs { get; init; }

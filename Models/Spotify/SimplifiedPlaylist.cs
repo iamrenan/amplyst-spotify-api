@@ -9,6 +9,7 @@ public record SimplifiedPlaylist
     public required ExternalUrls ExternalUrls { get; init; }
     public required string Href { get; init; }
     public required string Id { get; init; }
+    public required string Uri { get; init; }
     public required List<Image>? Images { get; init; }
     public required string Name { get; init; }
     public required Owner Owner { get; init; }

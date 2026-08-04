@@ -17,9 +17,13 @@ public class PlaylistItem : Auditable
     /// </summary>
     public string? SpotifyPlaylistId { get; set; }
     /// <summary>
-    /// Spotify unique identifier for the track that this playlist track represents.
+    /// Spotify unique identifier for the track that this playlist track represents. Null for local files.
     /// </summary>
     public string? SpotifyItemId { get; set; }
+    /// <summary>
+    /// Spotify URI for the track that this playlist track represents. Always present, including for local files.
+    /// </summary>
+    public string? SpotifyItemUri { get; set; }
     /// <summary>
     /// Spotify unique identifier for the user that added this track to the playlist.
     /// </summary>

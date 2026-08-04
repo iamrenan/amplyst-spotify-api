@@ -7,8 +7,10 @@ namespace amplyst_spotify_api.Models.Spotify;
 public abstract record TrackOrEpisode
 {
     public ExternalUrls? ExternalUrls { get; init; }
-    public required string Href { get; init; }
-    public required string Id { get; init; }
+    // Null for local files.
+    public string? Href { get; init; }
+    // Null for local files; use Uri to identify these instead.
+    public string? Id { get; init; }
     public required string Type { get; init; }
     public required string Uri { get; init; }
 }

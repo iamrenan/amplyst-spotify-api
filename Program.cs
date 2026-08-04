@@ -26,21 +26,25 @@ builder.Services
         options.CombineLogs = true;
     })
     .AddMemoryCache()
-    .AddSingleton<ITokenService, TokenService>();
+    .AddDbContext<AmplystDbContext>(static options => options.UseInMemoryDatabase("AmplystDatabase"))
+    .AddSingleton<ITokenService, TokenService>()
+    .AddScoped<IImportService, ImportService>()
+    .AddScoped<IImportRepository, ImportRepository>()
+    .AddScoped<ILibraryService, LibraryService>()
+    .AddScoped<ILibraryRepository, LibraryRepository>()
+    .AddScoped<ISpotifyClientService, SpotifyClientService>();
 
 builder.Services.AddControllers()
     .AddJsonOptions(static options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
-var dataProtectionKeysPath = Path.Combine(builder.Environment.ContentRootPath, "App_Data", "keys");
+string dataProtectionKeysPath = Path.Combine(builder.Environment.ContentRootPath, "App_Data", "keys");
+
 builder.Services.AddDataProtection()
     .SetApplicationName("amplyst-spotify-api")
-    .PersistKeysToFileSystem(new DirectoryInfo(dataProtectionKeysPath));
-builder.Services.AddDbContext<AmplystDbContext>(options =>
-    options.UseInMemoryDatabase("AmplystDatabase"));
-builder.Services.AddScoped<ILibraryService, LibraryService>();
-builder.Services.AddScoped<ILibraryRepository, LibraryRepository>();
+    .PersistKeysToFileSystem(new(dataProtectionKeysPath));
+
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(options =>
+    .AddCookie(static options =>
     {
         options.Cookie.HttpOnly = true;
         options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
@@ -50,7 +54,6 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     });
 
 WebApplication app = builder.Build();
-
 
 if (app.Environment.IsDevelopment())
 {

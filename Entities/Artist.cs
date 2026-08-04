@@ -11,4 +11,9 @@ public class Artist : Auditable
     public string? ImageUrl { get; init; }
     public string? SpotifyArtistId { get; init; }
     public string? SpotifyArtistUri { get; init; }
+
+    /// <summary>
+    /// Used by Spotify. Local file artists have no Spotify id or uri, so their last resort is to be matched by name.
+    /// </summary>
+    public string GetMatchKey() => SpotifyArtistId ?? SpotifyArtistUri ?? $"local::{Name}";
 }
