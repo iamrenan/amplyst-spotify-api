@@ -9,7 +9,7 @@ namespace amplyst_spotify_api.Controllers;
 [ApiController]
 [Authorize]
 [Route("api/v1/[controller]")]
-public class ImportController(IImportService service, ILogger<ImportController> logger) : ControllerBase
+public partial class ImportController(IImportService service, ILogger<ImportController> logger) : ControllerBase
 {
     [HttpGet("jobs/{jobId}")]
     public async Task<IActionResult> GetImportJobStatus(Guid jobId)
@@ -50,7 +50,7 @@ public class ImportController(IImportService service, ILogger<ImportController> 
         {
             var job = await service.CreateImportJobAsync(userId);
             using var jobScope = logger.BeginScope(new Dictionary<string, object> { ["JobId"] = job.Id });
-            logger.LogInformation("Created import job {JobId} for user {UserId}.", job.Id, userId);
+            LogJobCreated(job.Id, userId);
             return Accepted(new { id = job.Id, status = job.Status.ToString() });
         }
         catch (ImportAlreadyInProgressException ex)
@@ -68,4 +68,7 @@ public class ImportController(IImportService service, ILogger<ImportController> 
             return StatusCode(500, $"Internal server error: {ex.Message}");
         }
     }
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Created import job {JobId} for user {UserId}.")]
+    private partial void LogJobCreated(Guid jobId, string userId);
 }
