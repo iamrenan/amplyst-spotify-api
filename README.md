@@ -2,7 +2,8 @@
 
 A .NET 10 minimal API that connects to the Spotify Web API. It manages OAuth 2.0 authentication and retrieves playlist data for the authenticated user.
 
-**Current scope (July 2026):** This API supports the Spotify Web API as it operates in July 2026. The working functionality is user playlist listing. This is the initial phase of the project.
+**Current scope (August 2026):** This API supports the Spotify Web API as it operates in August 2026.
+The working functionality adds artists, items (tracks/show episodes), and playlists, based on the current user playlists, in a fire-and-forget manner, respecting Spotify's Retry-After header.
 
 **Planned scope:** The final goal is a full cloud music library management dashboard. This includes filtering, ordering, and managing music content across cloud services.
 
@@ -79,20 +80,15 @@ Receives the authorization code from Spotify. Exchanges the code for an access t
 
 > **Note:** Do not call this endpoint directly. Use `GET /api/v1/auth` to start the authorization flow. Spotify calls `/api/v1/auth/callback` automatically after the user authenticates. Direct calls will fail because the required `state` value is only set by `/api/v1/auth`.
 
-| Query Parameter | Required | Description |
-|-----------------|----------|-------------|
-| `code`          | Yes      | The authorization code from Spotify |
+| Query Parameter | Required | Description                              |
+|-----------------|----------|------------------------------------------|
+| `code`          | Yes      | The authorization code from Spotify      |
 | `state`         | Yes      | The state value from the `/auth` request |
-| `error`         | No       | An error string returned by Spotify |
+| `error`         | No       | An error string returned by Spotify      |
 
 **Success response (`200 OK`):**
 
-```json
-{
-  "expiresAt": "2026-01-01T00:00:00Z",
-  "playlists": "https://127.0.0.1:7138/api/v1/playlist"
-}
-```
+`2026-01-01T00:00:00Z`
 
 **Error responses:**
 - `400 Bad Request` — Missing code, state mismatch, or Spotify returned an error
@@ -100,16 +96,32 @@ Receives the authorization code from Spotify. Exchanges the code for an access t
 
 ---
 
-### `GET /api/v1/playlist`
+### `POST /api/v1/import`
 
-Returns the playlist list for the authenticated user.
+Creates a new import job for the authenticated user. The job will import the user's playlists, artists, and items (tracks/show episodes) from Spotify.
 
-**Requires:** A valid access token obtained from `/auth/callback`.
+Requires the user to be authenticated via the `/api/v1/auth` endpoint.
 
-**Success response (`200 OK`):** A JSON object with the user's playlists.
+**Response:** `202 Accepted` with a JSON body containing the job ID and status.
 
 **Error responses:**
-- `401 Unauthorized` — Access token is missing or expired
-- `500 Internal Server Error` — The Spotify API request failed
+- `401 Unauthorized` — User is not authenticated
+- `409 Conflict` — An import job is already in progress for the user.
+
+---
+
+### `GET /api/v1/import/jobs/{jobId}`
+
+Returns the status of an import job.
+
+| Path Parameter  | Required  | Description               |
+|-----------------|-----------|---------------------------|
+| `jobId`         | Yes       | The ID of the import job  |
+
+**Response:** `200 OK` with a JSON body containing the job status.
+
+**Error responses:**
+- `401 Unauthorized` — User is not authenticated
+- `404 Not Found` — Import job with the specified ID does not exist
 
 ---
