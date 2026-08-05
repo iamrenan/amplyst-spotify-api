@@ -10,7 +10,11 @@ using System.Text.Json.Serialization;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-builder.Logging.AddProvider(new FileLoggerProvider(Path.Combine(builder.Environment.ContentRootPath, "App_Data", "logs", "log.txt")));
+builder.Logging.AddProvider(
+    new FileLoggerProvider(
+        Path.Combine(builder.Environment.ContentRootPath, "App_Data", "logs", "log.txt")
+    )
+);
 
 builder.Services
     .AddOpenApi()
@@ -26,7 +30,9 @@ builder.Services
         options.CombineLogs = true;
     })
     .AddMemoryCache()
-    .AddDbContext<AmplystDbContext>(static options => options.UseInMemoryDatabase("AmplystDatabase"))
+    .AddDbContext<AmplystDbContext>(options => options.UseSqlServer(
+        builder.Configuration.GetConnectionString("DefaultConnection"))
+    )
     .AddSingleton<ITokenService, TokenService>()
     .AddScoped<IImportService, ImportService>()
     .AddScoped<IImportRepository, ImportRepository>()
