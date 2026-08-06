@@ -30,9 +30,13 @@ builder.Services
         options.CombineLogs = true;
     })
     .AddMemoryCache()
-    .AddDbContext<AmplystDbContext>(options => options.UseSqlServer(
-        builder.Configuration.GetConnectionString("DefaultConnection"))
-    )
+    .AddDbContext<AmplystDbContext>(options =>
+    {
+        string? connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+        options.UseSqlServer(!string.IsNullOrWhiteSpace(connectionString)
+            ? connectionString
+            : throw new InvalidOperationException("Connection string 'DefaultConnection' not found."));
+    })
     .AddSingleton<ITokenService, TokenService>()
     .AddScoped<IImportService, ImportService>()
     .AddScoped<IImportRepository, ImportRepository>()

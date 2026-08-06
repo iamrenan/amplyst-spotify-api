@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using amplyst_spotify_api.Data;
 
@@ -11,9 +12,11 @@ using amplyst_spotify_api.Data;
 namespace amplyst_spotify_api.Migrations
 {
     [DbContext(typeof(AmplystDbContext))]
-    partial class AmplystDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260805235842_UpdatePlaylistItemFkAndCollation")]
+    partial class UpdatePlaylistItemFkAndCollation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

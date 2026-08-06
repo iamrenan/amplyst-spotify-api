@@ -26,6 +26,7 @@ public class AmplystDbContext(DbContextOptions<AmplystDbContext> options) : DbCo
         {
             entity.Property(e => e.Id).HasDefaultValueSql("NEWSEQUENTIALID()");
             entity.HasIndex(p => p.SpotifyPlaylistUri).IsUnique();
+            entity.Property(p => p.SpotifyPlaylistUri).UseCollation("Latin1_General_CS_AS");
             entity.Property(p => p.SpotifySnapshotId).IsConcurrencyToken();
             entity.ToTable("Playlists");
         });
@@ -49,6 +50,8 @@ public class AmplystDbContext(DbContextOptions<AmplystDbContext> options) : DbCo
             entity.Property(e => e.Id).HasDefaultValueSql("NEWSEQUENTIALID()");
             entity.HasIndex(pi => new { pi.PlaylistId, pi.ItemId }).IsUnique(false);
             entity.HasIndex(pi => pi.ItemId);
+            entity.HasOne<Playlist>().WithMany().HasForeignKey(pi => pi.PlaylistId).OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne<Item>().WithMany().HasForeignKey(pi => pi.ItemId).OnDelete(DeleteBehavior.Cascade);
             entity.ToTable("PlaylistItems");
         });
 
